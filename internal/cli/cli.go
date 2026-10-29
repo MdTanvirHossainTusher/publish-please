@@ -48,6 +48,8 @@ type options struct {
 	repoDir, userName, userEmail, changelogHost   string
 	outputsFile                                   string
 	dryRun, debug, jsonOut                        bool
+	// set holds the flags given on the command line (not from the environment).
+	set map[string]bool
 	// bootstrap only
 	currentVersion string
 }
@@ -124,6 +126,8 @@ func Main(args []string, stdout, stderr io.Writer) int {
 		}
 		return 2
 	}
+	o.set = map[string]bool{}
+	fs.Visit(func(f *flag.Flag) { o.set[f.Name] = true })
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Minute)
 	defer cancel()
 	app := &app{o: o, stdout: stdout, stderr: stderr}
@@ -216,6 +220,12 @@ func (a *app) connect(ctx context.Context) error {
 	}
 	if kind == "github" && o.serverURL == "" {
 		o.serverURL = "https://github.com"
+	}
+	if o.set["server-url"] && !o.set["api-url"] {
+		// An API URL from the environment belongs to the CI's own forge
+		// (e.g. GITHUB_API_URL on GitHub runners), not to the server given
+		// on the command line: derive it from --server-url instead.
+		o.apiURL = ""
 	}
 	if kind == "gitea" && o.apiURL != "" && !strings.Contains(o.apiURL, "/api/v1") {
 		// GITHUB_API_URL in Gitea Actions already points at /api/v1, but be lenient.
