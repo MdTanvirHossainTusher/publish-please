@@ -1,0 +1,32 @@
+# .gitea/workflows/release.yml  (also works as .forgejo/workflows/release.yml)
+#
+# Needs a secret RELEASE_TOKEN: an access token with repository read/write.
+# The built-in token works too, but PRs it opens will not trigger other workflows.
+name: release
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      # Option A: the container action (the runner needs Docker).
+      - uses: https://github.com/MdTanvirHossainTusher/publish-please@v0.1.0 # pin the latest release
+        id: release
+        with:
+          token: ${{ secrets.RELEASE_TOKEN }}
+
+      # Option B: the plain binary, no Docker needed.
+      # - uses: actions/setup-go@v5
+      #   with: { go-version: stable }
+      # - run: go install github.com/MdTanvirHossainTusher/publish-please/cmd/publish-please@latest
+      # - run: publish-please run
+      #   id: release
+      #   env:
+      #     PUBLISH_PLEASE_TOKEN: ${{ secrets.RELEASE_TOKEN }}
+
+      # Do something when a release was made:
+      - if: steps.release.outputs.release_created == 'true'
+        run: echo "released ${{ steps.release.outputs.tag_name }}"

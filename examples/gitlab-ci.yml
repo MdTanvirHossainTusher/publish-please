@@ -1,0 +1,18 @@
+# Add to .gitlab-ci.yml
+#
+# CI_JOB_TOKEN cannot push branches or open merge requests, so create a
+# project access token (role: Maintainer, scopes: api, write_repository) and
+# store it as a masked CI/CD variable named PUBLISH_PLEASE_TOKEN.
+publish-please:
+  stage: deploy
+  image:
+    name: ghcr.io/mdtanvirhossaintusher/publish-please:0
+    entrypoint: [""]
+  rules:
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+  script:
+    - publish-please run --outputs-file publish-please.env
+  artifacts:
+    reports:
+      # releases_created, tag_name, version, ... become variables for later jobs
+      dotenv: publish-please.env

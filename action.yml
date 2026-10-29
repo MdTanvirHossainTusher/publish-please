@@ -1,0 +1,108 @@
+name: publish-please
+description: Release PRs, changelogs and releases from Conventional Commits, on Gitea, Forgejo, GitHub and GitLab.
+author: publish-please contributors
+branding:
+  icon: package
+  color: green
+
+inputs:
+  token:
+    description: API token with permission to push branches, open PRs and create releases.
+    default: ${{ github.token }}
+  command:
+    description: "run (default), release-pr, release or bootstrap"
+    default: run
+  forge:
+    description: gitea, forgejo, github or gitlab. Auto-detected in Gitea/Forgejo/GitHub Actions.
+    default: ""
+  server-url:
+    description: Web URL of the forge. Defaults to the server the workflow runs on.
+    default: ${{ github.server_url }}
+  api-url:
+    description: API base URL. Derived from server-url when empty.
+    default: ""
+  repo:
+    description: owner/name. Defaults to the current repository.
+    default: ${{ github.repository }}
+  target-branch:
+    description: Branch to release from. Defaults to the repository's default branch.
+    default: ""
+  config-file:
+    description: Path to the config file.
+    default: ""
+  manifest-file:
+    description: Path to the versions manifest.
+    default: ""
+  release-type:
+    description: Release type for repositories without a config file.
+    default: ""
+  package-name:
+    description: Package name for repositories without a config file.
+    default: ""
+  path:
+    description: Package path for repositories without a config file.
+    default: ""
+  changelog-host:
+    description: Base URL used for links in changelogs.
+    default: ""
+  git-url:
+    description: HTTPS clone URL, if the one reported by the API is not reachable from the runner.
+    default: ""
+  dry-run:
+    description: Show what would happen without changing anything.
+    default: "false"
+  debug:
+    description: Verbose logging.
+    default: "false"
+
+outputs:
+  releases_created:
+    description: "true when at least one release was created"
+  release_created:
+    description: "true when the root package was released"
+  paths_released:
+    description: JSON array of package paths released
+  tag_name:
+    description: Tag of the root package release
+  version:
+    description: Version of the root package release
+  major:
+    description: Major version of the root package release
+  minor:
+    description: Minor version of the root package release
+  patch:
+    description: Patch version of the root package release
+  sha:
+    description: Commit that was tagged
+  html_url:
+    description: Release URL
+  upload_url:
+    description: Asset upload URL
+  prs_created:
+    description: "true when a release PR was opened or updated"
+  pr:
+    description: JSON of the first release PR
+  prs:
+    description: JSON array of release PRs
+
+runs:
+  using: docker
+  image: Dockerfile
+  entrypoint: /usr/local/bin/action-entrypoint.sh
+  args:
+    - ${{ inputs.command }}
+    - --token=${{ inputs.token }}
+    - --forge=${{ inputs.forge }}
+    - --server-url=${{ inputs.server-url }}
+    - --api-url=${{ inputs.api-url }}
+    - --repo=${{ inputs.repo }}
+    - --target-branch=${{ inputs.target-branch }}
+    - --config-file=${{ inputs.config-file }}
+    - --manifest-file=${{ inputs.manifest-file }}
+    - --release-type=${{ inputs.release-type }}
+    - --package-name=${{ inputs.package-name }}
+    - --path=${{ inputs.path }}
+    - --changelog-host=${{ inputs.changelog-host }}
+    - --git-url=${{ inputs.git-url }}
+    - --dry-run=${{ inputs.dry-run }}
+    - --debug=${{ inputs.debug }}

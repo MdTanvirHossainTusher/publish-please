@@ -1,0 +1,22 @@
+# .github/workflows/release.yml
+name: release
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: MdTanvirHossainTusher/publish-please@v0.1.0 # pin the latest release
+        id: release
+        # with:
+        #   token: ${{ secrets.RELEASE_TOKEN }}  # so release PRs trigger CI
+
+      - if: steps.release.outputs.release_created == 'true'
+        run: echo "released ${{ steps.release.outputs.tag_name }}"
