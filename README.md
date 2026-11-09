@@ -1,5 +1,10 @@
 # publish-please
 
+[![ci](https://github.com/MdTanvirHossainTusher/publish-please/actions/workflows/ci.yml/badge.svg)](https://github.com/MdTanvirHossainTusher/publish-please/actions/workflows/ci.yml)
+[![GitHub Marketplace](https://img.shields.io/badge/Marketplace-publish--please-blue?logo=github)](https://github.com/marketplace/actions/publish-please)
+[![release](https://img.shields.io/github/v/release/MdTanvirHossainTusher/publish-please)](https://github.com/MdTanvirHossainTusher/publish-please/releases)
+[![license](https://img.shields.io/github/license/MdTanvirHossainTusher/publish-please)](LICENSE)
+
 Release pull requests, changelogs and releases from [Conventional Commits](https://www.conventionalcommits.org) — on **Gitea, Forgejo, GitHub and GitLab**.
 
 publish-please does what [release-please](https://github.com/googleapis/release-please) does, but is not tied to GitHub. It reads the same `release-please-config.json` and `.release-please-manifest.json`, so an existing release-please setup works without changes.
@@ -32,7 +37,7 @@ jobs:
   release:
     runs-on: ubuntu-latest
     steps:
-      - uses: https://github.com/MdTanvirHossainTusher/publish-please@v0.1.0
+      - uses: https://github.com/MdTanvirHossainTusher/publish-please@v0
         id: release
         with:
           token: ${{ secrets.RELEASE_TOKEN }}
@@ -50,7 +55,7 @@ jobs:
   release:
     runs-on: ubuntu-latest
     steps:
-      - uses: MdTanvirHossainTusher/publish-please@v0.1.0
+      - uses: MdTanvirHossainTusher/publish-please@v0
         id: release
 ```
 
@@ -287,6 +292,10 @@ make e2e          # full release cycle against a throwaway Gitea container (need
 make e2e-forgejo  # the same against Forgejo
 make build
 ```
+
+## Contributing
+
+Issues and pull requests are welcome. See [CONTRIBUTING.md](CONTRIBUTING.md) and the [Code of Conduct](CODE_OF_CONDUCT.md). Report security problems privately as described in [SECURITY.md](SECURITY.md).
 
 ## License
 
