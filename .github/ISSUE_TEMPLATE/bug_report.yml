@@ -1,0 +1,36 @@
+name: Bug report
+description: Something publish-please did wrong
+labels: [bug]
+body:
+  - type: dropdown
+    id: forge
+    attributes:
+      label: Forge
+      options: [GitHub, Gitea, Forgejo, GitLab]
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: publish-please version
+      placeholder: v0.1.0
+    validations:
+      required: true
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened, and what did you expect?
+    validations:
+      required: true
+  - type: textarea
+    id: config
+    attributes:
+      label: Config
+      description: release-please-config.json, .release-please-manifest.json and the workflow step, if relevant.
+      render: json
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs
+      description: "Output with `debug: true` (or `--debug`). Remove any tokens first."
+      render: text

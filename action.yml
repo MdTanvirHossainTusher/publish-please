@@ -1,6 +1,6 @@
 name: publish-please
 description: Release PRs, changelogs and releases from Conventional Commits, on Gitea, Forgejo, GitHub and GitLab.
-author: publish-please contributors
+author: Mohammed Tanvir Hossain
 branding:
   icon: package
   color: green

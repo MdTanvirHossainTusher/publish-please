@@ -13,7 +13,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       # Option A: the container action (the runner needs Docker).
-      - uses: https://github.com/MdTanvirHossainTusher/publish-please@v0.1.0 # pin the latest release
+      - uses: https://github.com/MdTanvirHossainTusher/publish-please@v0 # or pin an exact release, e.g. @v0.1.0
         id: release
         with:
           token: ${{ secrets.RELEASE_TOKEN }}
