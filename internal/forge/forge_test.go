@@ -248,7 +248,7 @@ func TestBitbucketPullRequestsAndTags(t *testing.T) {
 	f := newFake(t, map[string]string{
 		"GET " + repo:                               `{"mainbranch":{"name":"main"},"links":{"html":{"href":"https://bitbucket.org/ws/app"},"clone":[{"name":"ssh","href":"git@bitbucket.org:ws/app.git"},{"name":"https","href":"https://me@bitbucket.org/ws/app.git"}]}}`,
 		"POST " + repo + "/pullrequests":            `{"id":5,"title":"t","state":"OPEN","draft":true,"description":` + string(desc) + `,"source":{"branch":{"name":"b"}},"destination":{"branch":{"name":"main"}},"links":{"html":{"href":"https://bitbucket.org/ws/app/pull-requests/5"}}}`,
-		"GET " + repo + "/pullrequests":             `{"values":[{"id":3,"state":"MERGED","description":` + string(desc) + `,"merge_commit":{"hash":"abc123def456"},"source":{"branch":{"name":"publish-please--branches--main"}},"destination":{"branch":{"name":"main"}}},{"id":2,"state":"MERGED","description":"x"}]}`,
+		"GET " + repo + "/pullrequests":             `{"values":[{"id":3,"state":"MERGED","comment_count":1,"description":` + string(desc) + `,"merge_commit":{"hash":"abc123def456"},"source":{"branch":{"name":"publish-please--branches--main"}},"destination":{"branch":{"name":"main"}}},{"id":2,"state":"MERGED","description":"x"}]}`,
 		"GET " + repo + "/pullrequests/3/comments":  `{"values":[{"content":{"raw":"publish-please: removed label ` + "`autorelease: pending`" + `\npublish-please: added label ` + "`autorelease: tagged`" + `"}}]}`,
 		"GET " + repo + "/pullrequests/4":           `{"id":4,"state":"MERGED","description":` + string(desc) + `}`,
 		"GET " + repo + "/pullrequests/4/comments":  `{"values":[]}`,
@@ -318,5 +318,21 @@ func TestBitbucketPullRequestsAndTags(t *testing.T) {
 	g3, _ := New(Options{Kind: "bitbucket", APIURL: f.srv.URL, Repo: "ws/app", Token: "me:apppw"})
 	if a := g3.GitAuth(); a.Username != "me" || a.Password != "apppw" {
 		t.Fatalf("app password git auth %+v", a)
+	}
+}
+
+func TestBitbucketSkipsCommentsWhenNone(t *testing.T) {
+	repo := "/repositories/ws/app"
+	desc, _ := json.Marshal(bbEncodeBody("notes", []string{"autorelease: pending"}))
+	f := newFake(t, map[string]string{
+		"GET " + repo + "/pullrequests/9": `{"id":9,"state":"MERGED","comment_count":0,"description":` + string(desc) + `}`,
+	})
+	g, _ := New(Options{Kind: "bitbucket", APIURL: f.srv.URL, Repo: "ws/app", Token: "t"})
+	pr, err := g.GetPR(context.Background(), 9)
+	if err != nil || !pr.HasLabel("autorelease: pending") {
+		t.Fatalf("pr %+v %v", pr, err)
+	}
+	if len(f.calls) != 1 {
+		t.Fatalf("expected no comments call, got %+v", f.calls)
 	}
 }

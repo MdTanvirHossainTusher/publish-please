@@ -109,12 +109,13 @@ func (b *bitbucket) Repository(ctx context.Context) (*Repository, error) {
 }
 
 type bbPR struct {
-	ID          int    `json:"id"`
-	Title       string `json:"title"`
-	Description string `json:"description"`
-	State       string `json:"state"`
-	Draft       bool   `json:"draft"`
-	Source      struct {
+	ID           int    `json:"id"`
+	Title        string `json:"title"`
+	Description  string `json:"description"`
+	State        string `json:"state"`
+	Draft        bool   `json:"draft"`
+	CommentCount int    `json:"comment_count"`
+	Source       struct {
 		Branch struct {
 			Name string `json:"name"`
 		} `json:"branch"`
@@ -164,7 +165,7 @@ func (b *bitbucket) toPR(ctx context.Context, p bbPR) (*PullRequest, error) {
 	if p.MergeCommit != nil {
 		pr.MergeCommitSHA = p.MergeCommit.Hash
 	}
-	if labels != nil && p.State != "OPEN" {
+	if labels != nil && p.State != "OPEN" && p.CommentCount > 0 {
 		var err error
 		if pr.Labels, err = b.replayLabelComments(ctx, p.ID, labels); err != nil {
 			return nil, err
@@ -276,7 +277,7 @@ func (b *bitbucket) changeLabels(ctx context.Context, n int, labels []string, ve
 	if p.State == "OPEN" {
 		body, cur := bbDecodeBody(p.Description)
 		next := applyLabels(cur, labels, verb)
-		_, err := b.c.do(ctx, "PUT", b.prPath(n), map[string]any{"title": p.Title, "description": bbEncodeBody(body, next)}, nil)
+		_, err := b.c.do(ctx, "PUT", b.prPath(n), map[string]any{"title": p.Title, "description": bbEncodeBody(body, next), "draft": p.Draft}, nil)
 		return err
 	}
 	// Merged and declined PRs cannot be edited: record the change as a comment.
