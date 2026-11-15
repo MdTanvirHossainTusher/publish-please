@@ -1,4 +1,4 @@
-// Package forge talks to code hosting APIs (Gitea/Forgejo, GitHub, GitLab).
+// Package forge talks to code hosting APIs (Gitea/Forgejo, GitHub, GitLab, Bitbucket Cloud).
 package forge
 
 import (
@@ -107,7 +107,7 @@ type Forge interface {
 
 // Options configures a forge client.
 type Options struct {
-	Kind   string // gitea, forgejo, github, gitlab
+	Kind   string // gitea, forgejo, github, gitlab, bitbucket
 	APIURL string // API base, e.g. https://gitea.example.com/api/v1
 	WebURL string // web base, e.g. https://gitea.example.com
 	Repo   string // owner/name (GitLab: group/subgroup/name)
@@ -134,8 +134,10 @@ func New(o Options) (Forge, error) {
 		return newGitHub(o)
 	case "gitlab":
 		return newGitLab(o)
+	case "bitbucket":
+		return newBitbucket(o)
 	}
-	return nil, fmt.Errorf("unknown forge %q (want gitea, forgejo, github or gitlab)", o.Kind)
+	return nil, fmt.Errorf("unknown forge %q (want gitea, forgejo, github, gitlab or bitbucket)", o.Kind)
 }
 
 // APIError is a non-2xx response.

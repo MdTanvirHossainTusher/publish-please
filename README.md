@@ -5,7 +5,7 @@
 [![release](https://img.shields.io/github/v/release/MdTanvirHossainTusher/publish-please)](https://github.com/MdTanvirHossainTusher/publish-please/releases)
 [![license](https://img.shields.io/github/license/MdTanvirHossainTusher/publish-please)](LICENSE)
 
-Release pull requests, changelogs and releases from [Conventional Commits](https://www.conventionalcommits.org) — on **Gitea, Forgejo, GitHub and GitLab**.
+Release pull requests, changelogs and releases from [Conventional Commits](https://www.conventionalcommits.org) — on **Gitea, Forgejo, GitHub, GitLab and Bitbucket Cloud**.
 
 publish-please does what [release-please](https://github.com/googleapis/release-please) does, but is not tied to GitHub. It reads the same `release-please-config.json` and `.release-please-manifest.json`, so an existing release-please setup works without changes.
 
@@ -62,6 +62,17 @@ jobs:
 ### GitLab CI
 
 See [examples/gitlab-ci.yml](examples/gitlab-ci.yml). GitLab's job token cannot open merge requests, so use a project access token (`api`, `write_repository`) in `PUBLISH_PLEASE_TOKEN`.
+
+### Bitbucket Pipelines
+
+See [examples/bitbucket-pipelines.yml](examples/bitbucket-pipelines.yml). Create a repository access token with the `repository:write` and `pullrequest:write` scopes and store it as a secured variable named `PUBLISH_PLEASE_TOKEN`. An app password (`username:app-password`) or an Atlassian API token (`email:api-token`) works too.
+
+Bitbucket has no pull request labels and no releases, so publish-please:
+
+- keeps the release PR's labels in a hidden line of its description, and records label changes on merged PRs as `publish-please: added/removed label` comments;
+- publishes a release as an annotated tag, with the release notes in the tag message (`html_url` points at the tag; `upload_url` is empty).
+
+Only Bitbucket Cloud (bitbucket.org) is supported, not Bitbucket Data Center / Server.
 
 ### Command line
 
@@ -250,7 +261,7 @@ END_COMMIT_OVERRIDE
 
 ## Outputs
 
-Written to `$GITHUB_OUTPUT` (Gitea, Forgejo and GitHub Actions) or to `--outputs-file` (for example a GitLab dotenv report). Use `--json` to print them.
+Written to `$GITHUB_OUTPUT` (Gitea, Forgejo and GitHub Actions) or to `--outputs-file` (for example a GitLab dotenv report, or a file later Bitbucket Pipelines commands read). Use `--json` to print them.
 
 | Output | Description |
 | --- | --- |
@@ -264,11 +275,11 @@ Written to `$GITHUB_OUTPUT` (Gitea, Forgejo and GitHub Actions) or to `--outputs
 
 | Flag | Environment | Notes |
 | --- | --- | --- |
-| `--token` | `PUBLISH_PLEASE_TOKEN`, `GITEA_TOKEN`, `GITLAB_TOKEN`, `GITHUB_TOKEN` | |
-| `--forge` | `PUBLISH_PLEASE_FORGE` | Detected in Gitea, Forgejo, GitHub and GitLab CI; otherwise by probing the server. |
+| `--token` | `PUBLISH_PLEASE_TOKEN`, `GITEA_TOKEN`, `GITLAB_TOKEN`, `GITHUB_TOKEN`, `BITBUCKET_TOKEN` | On Bitbucket: an access token, `username:app-password` or `email:api-token`. |
+| `--forge` | `PUBLISH_PLEASE_FORGE` | Detected in Gitea, Forgejo, GitHub and GitLab CI and Bitbucket Pipelines; otherwise from the server URL or by probing the server. |
 | `--server-url` | `GITEA_SERVER_URL`, `CI_SERVER_URL`, `GITHUB_SERVER_URL` | |
 | `--api-url` | `CI_API_V4_URL`, `GITHUB_API_URL` | Derived from the server URL when empty. |
-| `--repo` | `CI_PROJECT_PATH`, `GITHUB_REPOSITORY` | `owner/name`, or `group/subgroup/name` on GitLab. |
+| `--repo` | `CI_PROJECT_PATH`, `GITHUB_REPOSITORY`, `BITBUCKET_REPO_FULL_NAME` | `owner/name` (`workspace/repo` on Bitbucket), or `group/subgroup/name` on GitLab. |
 | `--target-branch` | | Defaults to the repository's default branch. |
 | `--git-url` | | Clone URL, for when the API reports a URL the runner cannot reach. |
 | `--repo-dir` | | Reuse an existing clone instead of a temporary one. Its working tree and index are never touched. |
