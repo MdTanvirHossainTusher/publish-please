@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.2.0](https://github.com/MdTanvirHossainTusher/publish-please/compare/v0.1.0...v0.2.0) (2026-11-15)
+
+
+### Features
+
+* **forge:** add Bitbucket Cloud support ([#7](https://github.com/MdTanvirHossainTusher/publish-please/issues/7)) ([240dda3](https://github.com/MdTanvirHossainTusher/publish-please/commit/240dda38142d23f01e929fee3aaf7d81cbbca3e8))
+
 ## 0.1.0 (2026-10-29)
 
 
