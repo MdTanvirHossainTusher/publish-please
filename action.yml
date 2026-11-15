@@ -1,5 +1,5 @@
 name: publish-please
-description: Release PRs, changelogs and releases from Conventional Commits, on Gitea, Forgejo, GitHub and GitLab.
+description: Release PRs, changelogs and releases from Conventional Commits, on Gitea, Forgejo, GitHub, GitLab and Bitbucket.
 author: Mohammed Tanvir Hossain
 branding:
   icon: package
@@ -13,7 +13,7 @@ inputs:
     description: "run (default), release-pr, release or bootstrap"
     default: run
   forge:
-    description: gitea, forgejo, github or gitlab. Auto-detected in Gitea/Forgejo/GitHub Actions.
+    description: gitea, forgejo, github, gitlab or bitbucket. Auto-detected in Gitea/Forgejo/GitHub Actions.
     default: ""
   server-url:
     description: Web URL of the forge. Defaults to the server the workflow runs on.

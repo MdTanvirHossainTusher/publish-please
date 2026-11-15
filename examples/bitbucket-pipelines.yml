@@ -1,0 +1,16 @@
+# Add to bitbucket-pipelines.yml
+#
+# Pipelines has no built-in token that can open pull requests, so create a
+# repository access token (scopes: repository:write, pullrequest:write) and
+# store it as a secured repository variable named PUBLISH_PLEASE_TOKEN.
+# The forge and repository are detected from the Pipelines environment.
+pipelines:
+  branches:
+    main:
+      - step:
+          name: publish-please
+          image: ghcr.io/mdtanvirhossaintusher/publish-please:0
+          script:
+            - publish-please run --outputs-file publish-please.env
+            # key=value lines: releases_created, tag_name, version, ...
+            - if grep -qx 'releases_created=true' publish-please.env; then echo "released $(grep '^tag_name=' publish-please.env | cut -d= -f2-)"; fi

@@ -42,9 +42,12 @@ func (r *Runner) CreateReleases(ctx context.Context) ([]CreatedRelease, error) {
 			r.logf("PR #%d has no merge commit SHA, using %s head", pr.Number, r.Target)
 			sha = r.head
 		}
-		if r.Repo.Resolve(ctx, sha) == "" {
+		// Resolve to the full SHA: Bitbucket reports abbreviated merge hashes.
+		full := r.Repo.Resolve(ctx, sha)
+		if full == "" {
 			return nil, fmt.Errorf("merge commit %s of PR #%d is not on %s", sha, pr.Number, r.Target)
 		}
+		sha = full
 		var urls []string
 		for _, item := range data.Releases {
 			rel, err := r.releaseOne(ctx, pr, item, sha)

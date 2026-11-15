@@ -26,7 +26,7 @@ import (
 var Version = "dev"
 
 const usage = `publish-please - release PRs, changelogs and releases from Conventional Commits.
-Works with Gitea, Forgejo, GitHub and GitLab.
+Works with Gitea, Forgejo, GitHub, GitLab and Bitbucket Cloud.
 
 Usage:
   publish-please <command> [flags]
@@ -55,11 +55,11 @@ type options struct {
 }
 
 func (o *options) register(fs *flag.FlagSet, bootstrap bool) {
-	fs.StringVar(&o.forge, "forge", env("PUBLISH_PLEASE_FORGE"), "gitea, forgejo, github or gitlab (auto-detected in CI)")
+	fs.StringVar(&o.forge, "forge", env("PUBLISH_PLEASE_FORGE"), "gitea, forgejo, github, gitlab or bitbucket (auto-detected in CI)")
 	fs.StringVar(&o.serverURL, "server-url", env("PUBLISH_PLEASE_SERVER_URL", "GITEA_SERVER_URL", "CI_SERVER_URL", "GITHUB_SERVER_URL"), "web URL of the forge, e.g. https://gitea.example.com")
 	fs.StringVar(&o.apiURL, "api-url", env("PUBLISH_PLEASE_API_URL", "CI_API_V4_URL", "GITHUB_API_URL"), "API base URL (derived from --server-url when empty)")
-	fs.StringVar(&o.repo, "repo", env("PUBLISH_PLEASE_REPO", "CI_PROJECT_PATH", "GITHUB_REPOSITORY"), "repository as owner/name")
-	fs.StringVar(&o.token, "token", env("PUBLISH_PLEASE_TOKEN", "GITEA_TOKEN", "FORGEJO_TOKEN", "GITLAB_TOKEN", "GITHUB_TOKEN"), "API token (or PUBLISH_PLEASE_TOKEN)")
+	fs.StringVar(&o.repo, "repo", env("PUBLISH_PLEASE_REPO", "CI_PROJECT_PATH", "GITHUB_REPOSITORY", "BITBUCKET_REPO_FULL_NAME"), "repository as owner/name")
+	fs.StringVar(&o.token, "token", env("PUBLISH_PLEASE_TOKEN", "GITEA_TOKEN", "FORGEJO_TOKEN", "GITLAB_TOKEN", "GITHUB_TOKEN", "BITBUCKET_TOKEN"), "API token (or PUBLISH_PLEASE_TOKEN); on Bitbucket an access token, or user:app-password / email:api-token")
 	fs.StringVar(&o.gitURL, "git-url", env("PUBLISH_PLEASE_GIT_URL"), "HTTPS clone URL, when the API reports an unreachable one")
 	fs.StringVar(&o.target, "target-branch", env("PUBLISH_PLEASE_TARGET_BRANCH"), "branch to release from (default: repository default branch)")
 	fs.StringVar(&o.configFile, "config-file", "", "config file (default: publish-please-config.json or release-please-config.json)")
@@ -221,6 +221,9 @@ func (a *app) connect(ctx context.Context) error {
 	if kind == "github" && o.serverURL == "" {
 		o.serverURL = "https://github.com"
 	}
+	if kind == "bitbucket" && o.serverURL == "" {
+		o.serverURL = "https://bitbucket.org"
+	}
 	if o.set["server-url"] && !o.set["api-url"] {
 		// An API URL from the environment belongs to the CI's own forge
 		// (e.g. GITHUB_API_URL on GitHub runners), not to the server given
@@ -309,6 +312,8 @@ func detectForge(ctx context.Context, o *options) (string, error) {
 		return "gitlab", nil
 	case os.Getenv("GITHUB_ACTIONS") == "true":
 		return "github", nil
+	case os.Getenv("BITBUCKET_BUILD_NUMBER") != "" && o.serverURL == "":
+		return "bitbucket", nil
 	}
 	if o.serverURL == "" {
 		return "", errors.New("cannot detect the forge: pass --forge and --server-url")
@@ -322,6 +327,8 @@ func detectForge(ctx context.Context, o *options) (string, error) {
 		return "github", nil
 	case "gitlab.com":
 		return "gitlab", nil
+	case "bitbucket.org":
+		return "bitbucket", nil
 	case "codeberg.org":
 		return "gitea", nil
 	}
