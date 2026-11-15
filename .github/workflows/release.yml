@@ -19,7 +19,7 @@ jobs:
       major: ${{ steps.pp.outputs.major }}
       minor: ${{ steps.pp.outputs.minor }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       # publish-please releases itself
       - uses: ./
         id: pp
@@ -32,7 +32,7 @@ jobs:
     if: needs.publish-please.outputs.released == 'true'
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 0
       - run: |
@@ -44,8 +44,8 @@ jobs:
     if: needs.publish-please.outputs.released == 'true'
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-go@v5
+      - uses: actions/checkout@v7
+      - uses: actions/setup-go@v7
         with:
           go-version-file: go.mod
       - name: Build
@@ -74,13 +74,13 @@ jobs:
     if: needs.publish-please.outputs.released == 'true'
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: docker/login-action@v4
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ github.token }}
-      - uses: docker/build-push-action@v6
+      - uses: docker/build-push-action@v7
         with:
           push: true
           build-args: VERSION=${{ needs.publish-please.outputs.version }}
