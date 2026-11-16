@@ -8,7 +8,7 @@ RUN CGO_ENABLED=0 go build -trimpath \
       -ldflags "-s -w -X github.com/MdTanvirHossainTusher/publish-please/internal/cli.Version=${VERSION}" \
       -o /out/publish-please ./cmd/publish-please
 
-FROM alpine:3.22
+FROM alpine:3.24
 RUN apk add --no-cache git ca-certificates
 COPY --from=build /out/publish-please /usr/local/bin/publish-please
 COPY scripts/action-entrypoint.sh /usr/local/bin/action-entrypoint.sh
